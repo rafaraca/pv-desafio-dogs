@@ -4,17 +4,18 @@
     <v-container>
       <div id="selector" class="text-center">
       <h1 class="text-center">Choose the dogs breed</h1>
-        <v-select   label="Select" item-value="nome" item-text="nome" v-model="selected" :items="novoArray" @change="getRacas()">
-        </v-select>
+        <select v-model="selected" :items="novoArray" @change="getRacas()">
+          <option v-for="(breed, chave) in novoArray" :key="chave" :value="breed.nome"> {{ breed.nome }}</option>
+        </select>
       </div>
     </v-container>
+    
 
-    <snack-bar @closeSnackbar="snackbar = false" :show="snackbar" :text="textSnackbar"/>
  
     <v-container>
       <v-row>
         <v-col cols="12" sm="6" md="4" lg="3" v-for="(raca, index) in displayedPosts" :key="index">
-          <v-card class="pa-2" outlined tile color="blue">
+          <v-card class="pa-2" outlined tile>
             <v-img
               height="200px" 
               :src="raca" 
@@ -27,7 +28,7 @@
             </v-card-actions>
           </v-card>
         </v-col>
-      </v-row>
+      </v-row> 
     </v-container>
        
     <div class="text-center" v-if="paginacao">
@@ -45,7 +46,7 @@
       <h2 class="text-center">Favorite Dogs</h2>
       <v-row>
         <v-col cols="12" sm="6" md="4" lg="3" v-for="(pet, index) in favoriteDogs" :key="index">
-          <v-card class="pa-2" outlined tile> 
+          <v-card class="pa-2" outlined tile>
             <v-img 
               height="200px" 
               :src="pet"  
@@ -61,18 +62,20 @@
       </v-row>
     </v-container>
 
+    <!-- <v-container grid-list-md fluid>
+      <v-layout wrap>
+        <v-img v-for="(pet, index) in favoriteDogs" :key="index" :src="pet" max-width="150" @click="removeFavorites(index)"></v-img>
+      </v-layout>
+    </v-container> -->
+
   </v-app>
 </template>
 
 <script>
 
 import axios from "axios"
-import snackBar from "@/components/SnackBar.vue"
 
 export default {
-  components: {
-    'snack-bar': snackBar
-  },
 
   data() {
     return {
@@ -84,15 +87,19 @@ export default {
       pages: [],
       favoriteDogs: [],
       numberOfPages: "",
-      paginacao: false,
-      snackbar: false,
-      textSnackbar: ''
+      paginacao: false
+      
     }
   },
   created(){
     this.favoriteDogs = localStorage.getItem('favoritos') ? localStorage.getItem('favoritos').split(',') : []
     this.getAllBreeds()
   },
+  // mounted(){
+  //   if(localStorage.favoriteDogs){
+  //     this.favoriteDogs = localStorage.favoriteDogs
+  //   }
+  // },
   methods: {
     getAllBreeds(){
       axios
@@ -174,30 +181,40 @@ export default {
     addToFavorites(raca) {
       this.favoriteDogs.push(raca)
       localStorage.setItem('favoritos', this.favoriteDogs)
-      this.showSnack('Dog ADDED to favorites!  :)')
     },
     removeFavorites(index){
       this.favoriteDogs.splice(index,1)
       localStorage.setItem('favoritos', this.favoriteDogs)
-      this.showSnack('Dog REMOVED from favorites!  :(')
-    },
-
-    showSnack(text){
-      this.textSnackbar = text
-      this.snackbar = true
     }
   },
   computed: {
     displayedPosts() {
       return this.paginate(this.selectRacas)
     }
-  }
+  },
+  filters: {
+		trimWords(value){
+			return value.split(" ").splice(0,20).join(" ") + '...';
+		}
+	}
+  // watch: {
+  //   // posts() {
+  //   //   this.setPages();
+  //   // },
+  //   favoriteDogs(newFavoriteDogs) {
+  //     localStorage.favoriteDogs = newFavoriteDogs
+  //   }
+  // }
 }
 
 </script>
 
 <style scoped>
 
+  select {
+    background-color: yellow;
+
+  }
 
   img {
     width: 80%;
